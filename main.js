@@ -39,7 +39,7 @@ let pigeonInstances = []; // Additional pigeon instances for case 1
 let pigeonRotationSpeed = 0.01; // Rotation speed for main pigeon
 let pigeonModel = null; // Store the loaded model for cloning
 
-loader.load( 'assets/pigeon.glb', function( gltf ) {
+loader.load( '/assets/pigeon.glb', function( gltf ) {
 	mainPigeon = gltf.scene;
 	scene.add( mainPigeon );
 	pigeonModel = gltf.scene.clone(); // Store model for cloning
@@ -348,7 +348,7 @@ function onCaseChange(caseNumber) {
 			const gifCount = 8; // Number of GIF images to create
 			for (let i = 0; i < gifCount; i++) {
 				const img = document.createElement('img');
-				img.src = 'assets/pigeon-walk.gif';
+				img.src = '/assets/pigeon-walk.gif';
 				img.style.position = 'absolute';
 				img.style.width = '150px'; // Adjust size as needed
 				img.style.height = 'auto';
