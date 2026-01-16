@@ -8,7 +8,7 @@ const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.inner
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
 renderer.setAnimationLoop( animate );
-renderer.setClearColor(0xffffff); // Default white background
+renderer.setClearColor(0x000000); // Default black background
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1;
 document.body.appendChild( renderer.domElement );
@@ -137,8 +137,12 @@ function initializeCase(caseNumber) {
 	ambientLight.intensity = 0.6;
 	directionalLight.intensity = 0.8;
 	
-	// Reset background to white
-	renderer.setClearColor(0xffffff);
+	// Reset background based on case (default to black for case 1)
+	if (caseNumber === 1) {
+		renderer.setClearColor(0x000000);
+	} else {
+		renderer.setClearColor(0xffffff);
+	}
 }
 
 function onCaseChange(caseNumber) {
@@ -147,7 +151,8 @@ function onCaseChange(caseNumber) {
 	
 	switch(caseNumber) {
 		case 1:
-			// Case 1: Black background (already set in initializeCase)
+			// Case 1: Black background
+			renderer.setClearColor(0x000000);
 			break;
 		case 2:
 			// Case 2: Prepare for texture/light changes
@@ -1099,3 +1104,10 @@ function animate() {
 	renderer.render( scene, camera );
 
 }
+
+// Initialize case 1 on page load
+window.addEventListener('load', function() {
+	// Set initial case to 1 with black background
+	onCaseChange(1);
+	console.log('Initialized with case 1 and black background');
+});
