@@ -1,6 +1,6 @@
 // p5.js sketch that overlays on top of Three.js canvas
 let p5Canvas;
-let caseNum = null; // Initialize caseNum
+let caseNum = '1'; // Initialize caseNum to '1' for auto-start
 
 let rectPositions = []; // Store rect positions for case 3
 let maxRects = 5; // Maximum number of rects for case 3
@@ -32,6 +32,11 @@ let maxGlitchTexts = 20;
 let case6Image = null;
 let case6ImagePositions = [];
 
+// Auto-refresh timer (5 minutes = 300000ms)
+let lastInteractionTime = Date.now();
+let autoRefreshInterval = 5 * 60 * 1000; // 5 minutes in milliseconds
+let micStarted = false;
+
 // Preload image for case 6 (optional - you can add your image path)
 function preload() {
   // case6Image = loadImage('path/to/your/image.jpg');
@@ -49,25 +54,60 @@ function setup() {
   // Set background to transparent
   background(0, 0, 0, 0);
   
-  // Initialize audio analysis
-  try {
-    mic = new p5.AudioIn();
-    mic.start();
-    fft = new p5.FFT();
-    fft.setInput(mic);
-    console.log('Audio input initialized');
-  } catch (e) {
-    console.log('Audio input not available:', e);
-  }
+  // Initialize audio analysis - try to start automatically
+  startMicrophone();
   
   // Also listen to window keyboard events as backup
   window.addEventListener('keydown', handleKeyDown);
   
+  // Listen for any user interaction to start mic and update last interaction time
+  window.addEventListener('click', handleUserInteraction);
+  window.addEventListener('keydown', handleUserInteraction);
+  window.addEventListener('touchstart', handleUserInteraction);
+  window.addEventListener('mousemove', handleUserInteraction);
+  
   // Make audio data available globally
   window.audioData = audioData;
   
+  // Start auto-refresh timer check
+  setInterval(checkAutoRefresh, 1000); // Check every second
+  
   console.log('p5.js setup complete');
-  console.log('Press keys 1-6 to switch cases');
+  console.log('Auto-started with case 1');
+}
+
+function startMicrophone() {
+  if (!micStarted) {
+    try {
+      mic = new p5.AudioIn();
+      mic.start();
+      fft = new p5.FFT();
+      fft.setInput(mic);
+      micStarted = true;
+      console.log('Audio input initialized');
+    } catch (e) {
+      console.log('Audio input not available, will retry on user interaction:', e);
+      // Mic will be retried on user interaction
+    }
+  }
+}
+
+function handleUserInteraction(event) {
+  // Update last interaction time
+  lastInteractionTime = Date.now();
+  
+  // Try to start mic if not started yet
+  if (!micStarted) {
+    startMicrophone();
+  }
+}
+
+function checkAutoRefresh() {
+  let timeSinceLastInteraction = Date.now() - lastInteractionTime;
+  if (timeSinceLastInteraction >= autoRefreshInterval) {
+    console.log('No interaction for 5 minutes, refreshing page...');
+    window.location.reload();
+  }
 }
 
 function handleKeyDown(event) {
@@ -79,7 +119,7 @@ function handleKeyDown(event) {
 }
 
 function draw() {
-  // Check caseNum (can be string '1'-'6' or number 1-6)
+  // Always draw - caseNum defaults to '1' now
   if (caseNum !== null) {
     const caseValue = typeof caseNum === 'string' ? parseInt(caseNum) : caseNum;
     
@@ -112,10 +152,12 @@ function draw() {
         break;
       default:
         clear();
+        case1Vis(); // Default to case 1
     }
   } else {
-    // Clear when no case is selected
+    // Fallback to case 1 if somehow null
     clear();
+    case1Vis();
   }
 }
 
@@ -373,12 +415,21 @@ function case4Vis() {
 }
 
 function case5Vis() {
+    // Try to start mic if not started yet
+    if (!micStarted) {
+        startMicrophone();
+    }
+    
     // Update audio analysis
     if (fft) {
         let spectrum = fft.analyze();
         audioLevel = fft.getEnergy(20, 200); // Get energy in low-mid frequency range
         audioData.level = map(audioLevel, 0, 255, 0, 1); // Normalize to 0-1
         audioData.spectrum = spectrum;
+    } else {
+        // Fallback if mic not available
+        audioData.level = 0.3; // Default level
+        audioData.spectrum = [];
     }
     
     // Calculate ellipse size based on audio
@@ -462,12 +513,21 @@ function case5Vis() {
 }
 
 function case6Vis() {
+    // Try to start mic if not started yet
+    if (!micStarted) {
+        startMicrophone();
+    }
+    
     // Update audio analysis
     if (fft) {
         let spectrum = fft.analyze();
         audioLevel = fft.getEnergy(20, 200);
         audioData.level = map(audioLevel, 0, 255, 0, 1);
         audioData.spectrum = spectrum;
+    } else {
+        // Fallback if mic not available
+        audioData.level = 0.3; // Default level
+        audioData.spectrum = [];
     }
     
     // Add image with outline based on audio

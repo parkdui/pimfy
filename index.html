@@ -7,6 +7,23 @@
     <link rel="stylesheet" href="/style.css">
   </head>
   <body>
+    <script>
+      // Auto-start microphone on page load (will request permission)
+      // This helps bypass the need for user interaction in some browsers
+      window.addEventListener('load', function() {
+        // Try to get user media immediately
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+          navigator.mediaDevices.getUserMedia({ audio: true })
+            .then(function(stream) {
+              console.log('Microphone access granted on page load');
+              // Stream will be used by p5.js when it initializes
+            })
+            .catch(function(err) {
+              console.log('Microphone access denied, will request on interaction:', err);
+            });
+        }
+      });
+    </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/addons/p5.sound.min.js"></script>
     <script type="module" src="/main.js"></script>
