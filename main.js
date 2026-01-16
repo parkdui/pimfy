@@ -776,8 +776,8 @@ function animate() {
 					mainPigeon.scale.set(scale, scale, scale);
 				}
 			} else {
-				// No audio: keep white background
-				renderer.setClearColor(0xffffff);
+				// No audio: keep black background
+				renderer.setClearColor(0x000000);
 				if (mainPigeon) {
 					mainPigeon.scale.set(1, 1, 1);
 				}
@@ -1105,9 +1105,16 @@ function animate() {
 
 }
 
+// Initialize case 1 immediately and on page load
+// Set black background immediately
+renderer.setClearColor(0x000000);
+
 // Initialize case 1 on page load
 window.addEventListener('load', function() {
 	// Set initial case to 1 with black background
 	onCaseChange(1);
 	console.log('Initialized with case 1 and black background');
 });
+
+// Also initialize immediately (before load event)
+onCaseChange(1);
